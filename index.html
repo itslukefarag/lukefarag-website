@@ -71,6 +71,10 @@
       pointer-events: auto;
     }
 
+    .terminal-box-scroll > div {
+      width: 100%;
+    }
+
     .terminal-sub {
       font-family: "Consolas", "Monaco", "Courier New", monospace;
       font-size: clamp(1rem, 3vw, 1.5rem);
@@ -226,6 +230,16 @@
       color: rgba(220, 220, 220, 0.92);
     }
 
+    .favourites-item .fav-role {
+      font-size: 0.9em;
+      color: rgba(200, 200, 200, 0.65);
+      margin-left: 0.15rem;
+    }
+
+    .favourites-item:hover .fav-role {
+      color: rgba(220, 220, 220, 0.85);
+    }
+
     .favourites-item .fav-favicon {
       width: 1.35rem;
       height: 1.35rem;
@@ -270,11 +284,77 @@
     .terminal-signature.visible {
       opacity: 0.7;
     }
+
+    @media (max-width: 768px) {
+      .terminal-box {
+        width: 94%;
+        max-width: none;
+        height: 85%;
+        max-height: 90vh;
+        padding: 1.25rem 1.25rem;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .terminal-box-scroll {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .terminal-text {
+        font-size: clamp(1.5rem, 7vw, 2.5rem);
+      }
+
+      .terminal-sub {
+        font-size: clamp(0.95rem, 3.5vw, 1.15rem);
+      }
+
+      .terminal-section-title {
+        font-size: clamp(1.1rem, 4.5vw, 1.5rem);
+      }
+
+      .project-links {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .project-links a {
+        width: 100%;
+        min-width: 0;
+        font-size: clamp(0.85rem, 3vw, 1rem);
+      }
+
+      .favourites-list {
+        flex-direction: column;
+        gap: 0.5rem;
+      }
+
+      .favourites-item {
+        width: 100%;
+        min-width: 0;
+        font-size: clamp(0.85rem, 3vw, 1rem);
+        flex-wrap: wrap;
+      }
+
+      .terminal-signature {
+        position: static;
+        flex-shrink: 0;
+        height: 1.75rem;
+        margin-top: 1.25rem;
+        margin-left: auto;
+        margin-right: auto;
+        transform: none;
+      }
+    }
   </style>
 </head>
 <body>
   <canvas id="static-canvas"></canvas>
   <div class="terminal-box" aria-live="polite">
+    <div class="terminal-box-scroll">
     <div>
       <div class="terminal-text"><span id="typed"></span><span class="cursor" aria-hidden="true"></span></div>
       <p id="terminal-sub" class="terminal-sub">Thanks for visiting my personal website! Right now, this page is still under construction, but I've made sure you can find me in other places!</p>
@@ -307,23 +387,27 @@
             <a href="https://www.goodreads.com/book/show/55361205-a-promised-land" target="_blank" rel="noopener noreferrer" class="favourites-item">
               <span class="fav-icon" aria-hidden="true">📖</span>
               <span class="label">Book:</span>
-              <span class="fav-text">A Promised Land by Barack Obama</span>
+              <span class="fav-text">A Promised Land</span>
+              <span class="fav-role">· Barack Obama</span>
             </a>
             <a href="https://www.chromakopia.com/enter/" target="_blank" rel="noopener noreferrer" class="favourites-item">
               <span class="fav-icon" aria-hidden="true">🎵</span>
               <span class="label">Album:</span>
-              <span class="fav-text">Chromakopia by Tyler, the Creator</span>
+              <span class="fav-text">Chromakopia</span>
+              <span class="fav-role">· Tyler, the Creator</span>
             </a>
             <a href="https://www.instagram.com/reel/DSc3JFCFF22/?hl=en" target="_blank" rel="noopener noreferrer" class="favourites-item">
               <span class="fav-icon" aria-hidden="true">📢</span>
               <span class="label">Marketing Campaign:</span>
-              <span class="fav-text">Still Gin x Hexclad by KODE MEDIA</span>
+              <span class="fav-text">Still Gin x Hexclad</span>
+              <span class="fav-role">· KODE MEDIA</span>
             </a>
-            <div class="favourites-item">
+            <a href="https://www.imdb.com/title/tt32916440/" target="_blank" rel="noopener noreferrer" class="favourites-item">
               <span class="fav-icon" aria-hidden="true">🎬</span>
               <span class="label">Film:</span>
-              <span class="fav-text">Marty Supreme by A24</span>
-            </div>
+              <span class="fav-text">Marty Supreme</span>
+              <span class="fav-role">· A24</span>
+            </a>
             <a href="https://www.venn.ca/" target="_blank" rel="noopener noreferrer" class="favourites-item">
               <img src="https://www.google.com/s2/favicons?domain=venn.ca&sz=64" alt="" width="22" height="22" class="fav-favicon">
               <span class="label">New startup:</span>
@@ -341,6 +425,7 @@
           <p class="contact-text">You can reach me at <a href="mailto:me@lukefar.ag" class="contact-email">me@lukefar.ag</a></p>
         </div>
       </div>
+    </div>
     </div>
     <img src="assets/signature_logo.png" alt="" id="terminal-signature" class="terminal-signature" width="120" height="40">
   </div>
