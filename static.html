@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Luke Farag</title>
+  <link rel="icon" href="assets/speak.png" type="image/png">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #0a0a0a;
+    }
+
+    #static-canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .terminal-box {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 78%;
+      height: 62%;
+      max-width: 82vw;
+      max-height: 68vh;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 2rem 2.5rem;
+      display: flex;
+      align-items: flex-start;
+      justify-content: flex-start;
+      pointer-events: none;
+    }
+
+    .terminal-text {
+      font-family: "Consolas", "Monaco", "Courier New", monospace;
+      font-size: clamp(2rem, 6vw, 4rem);
+      color: rgba(220, 220, 220, 0.95);
+      text-align: left;
+      letter-spacing: 0.02em;
+    }
+
+    .terminal-text .cursor {
+      display: inline-block;
+      width: 0.55em;
+      height: 1.1em;
+      background: rgba(220, 220, 220, 0.9);
+      margin-left: 2px;
+      vertical-align: text-bottom;
+      animation: blink 1s step-end infinite;
+    }
+
+    @keyframes blink {
+      50% { opacity: 0; }
+    }
+
+    .terminal-box > div {
+      width: 100%;
+      pointer-events: auto;
+    }
+
+    .terminal-sub {
+      font-family: "Consolas", "Monaco", "Courier New", monospace;
+      font-size: clamp(1rem, 3vw, 1.5rem);
+      color: rgba(200, 200, 200, 0.85);
+      text-align: left;
+      line-height: 1.5;
+      margin-top: 1.25rem;
+      width: 100%;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .terminal-sub.visible {
+      opacity: 1;
+    }
+
+    .terminal-sections {
+      margin-top: 2rem;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+    }
+
+    .terminal-sections.visible {
+      opacity: 1;
+    }
+
+    .terminal-section {
+      font-family: "Consolas", "Monaco", "Courier New", monospace;
+      text-align: left;
+      margin-top: 1.25rem;
+    }
+
+    .terminal-section-title {
+      font-size: clamp(1.25rem, 4vw, 2rem);
+      font-weight: 600;
+      color: rgba(235, 235, 235, 0.95);
+      letter-spacing: 0.03em;
+      margin-bottom: 0.5rem;
+    }
+
+    .social-links {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-top: 0.35rem;
+    }
+
+    .social-links a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 2.5rem;
+      height: 2.5rem;
+      color: rgba(220, 220, 220, 0.9);
+      transition: color 0.2s ease, transform 0.2s ease;
+    }
+
+    .social-links a:hover {
+      color: rgba(255, 255, 255, 1);
+      transform: scale(1.1);
+    }
+
+    .social-links svg {
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+
+    .project-links {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-top: 0.35rem;
+    }
+
+    .project-links a {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0.75rem;
+      color: rgba(220, 220, 220, 0.9);
+      text-decoration: none;
+      font-family: "Consolas", "Monaco", "Courier New", monospace;
+      font-size: clamp(0.9rem, 2.5vw, 1.15rem);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 4px;
+      transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .project-links .project-role {
+      font-size: 0.85em;
+      color: rgba(200, 200, 200, 0.65);
+      margin-left: 0.15rem;
+    }
+
+    .project-links a:hover .project-role {
+      color: rgba(220, 220, 220, 0.85);
+    }
+
+    .project-links a:hover {
+      color: rgba(255, 255, 255, 1);
+      border-color: rgba(255, 255, 255, 0.35);
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    .project-links a img {
+      width: 1.35rem;
+      height: 1.35rem;
+      object-fit: contain;
+    }
+
+    .favourites-list {
+      margin-top: 0.5rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .favourites-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.65rem;
+      width: fit-content;
+      font-family: "Consolas", "Monaco", "Courier New", monospace;
+      font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+      color: rgba(200, 200, 200, 0.9);
+      padding: 0.5rem 0.85rem;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 4px;
+      background: rgba(0, 0, 0, 0.2);
+      line-height: 1.4;
+      transition: border-color 0.2s ease, background 0.2s ease;
+      text-decoration: none;
+    }
+
+    .favourites-item:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+      background: rgba(0, 0, 0, 0.28);
+    }
+
+    .favourites-item .fav-icon {
+      font-size: 1.25em;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+
+    .favourites-item .label {
+      color: rgba(180, 180, 180, 0.75);
+      margin-right: 0.2rem;
+      flex-shrink: 0;
+    }
+
+    .favourites-item .fav-text {
+      color: rgba(220, 220, 220, 0.92);
+    }
+
+    .favourites-item .fav-favicon {
+      width: 1.35rem;
+      height: 1.35rem;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+
+    .contact-text {
+      font-family: "Consolas", "Monaco", "Courier New", monospace;
+      font-size: clamp(0.9rem, 2.5vw, 1.1rem);
+      color: rgba(200, 200, 200, 0.9);
+      margin-top: 0.35rem;
+      line-height: 1.4;
+    }
+
+    .contact-email {
+      color: rgba(220, 220, 220, 0.95);
+      text-decoration: none;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+      transition: color 0.2s ease, border-color 0.2s ease;
+    }
+
+    .contact-email:hover {
+      color: rgba(255, 255, 255, 1);
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .terminal-signature {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      height: 2.5rem;
+      width: auto;
+      object-fit: contain;
+      filter: brightness(0) invert(1);
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      pointer-events: none;
+    }
+
+    .terminal-signature.visible {
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="static-canvas"></canvas>
+  <div class="terminal-box" aria-live="polite">
+    <div>
+      <div class="terminal-text"><span id="typed"></span><span class="cursor" aria-hidden="true"></span></div>
+      <p id="terminal-sub" class="terminal-sub">Thanks for visiting my personal website! Right now, this page is still under construction, but I've made sure you can find me in other places!</p>
+      <div id="terminal-sections" class="terminal-sections">
+        <div class="terminal-section">
+          <div class="terminal-section-title">my socials</div>
+          <div class="social-links">
+            <a href="https://twitter.com/LukeFarag" target="_blank" rel="noopener noreferrer" aria-label="Twitter / X"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+            <a href="https://www.linkedin.com/in/lukefarag/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+          </div>
+        </div>
+        <div class="terminal-section">
+          <div class="terminal-section-title">what i'm working on</div>
+          <div class="project-links">
+            <a href="https://www.farflash.com/" target="_blank" rel="noopener noreferrer">
+              <img src="https://www.google.com/s2/favicons?domain=farflash.com&sz=64" alt="" width="22" height="22">
+              <span class="project-name">FarFlash</span>
+              <span class="project-role">· Owner</span>
+            </a>
+            <a href="https://www.buildcanada.com/" target="_blank" rel="noopener noreferrer">
+              <img src="https://www.google.com/s2/favicons?domain=buildcanada.com&sz=64" alt="" width="22" height="22">
+              <span class="project-name">Build Canada</span>
+              <span class="project-role">· Social Media Lead</span>
+            </a>
+          </div>
+        </div>
+        <div class="terminal-section">
+          <div class="terminal-section-title">my favourite things right now</div>
+          <div class="favourites-list">
+            <a href="https://www.goodreads.com/book/show/55361205-a-promised-land" target="_blank" rel="noopener noreferrer" class="favourites-item">
+              <span class="fav-icon" aria-hidden="true">📖</span>
+              <span class="label">Book:</span>
+              <span class="fav-text">A Promised Land by Barack Obama</span>
+            </a>
+            <a href="https://www.chromakopia.com/enter/" target="_blank" rel="noopener noreferrer" class="favourites-item">
+              <span class="fav-icon" aria-hidden="true">🎵</span>
+              <span class="label">Album:</span>
+              <span class="fav-text">Chromakopia by Tyler, the Creator</span>
+            </a>
+            <a href="https://www.instagram.com/reel/DSc3JFCFF22/?hl=en" target="_blank" rel="noopener noreferrer" class="favourites-item">
+              <span class="fav-icon" aria-hidden="true">📢</span>
+              <span class="label">Marketing Campaign:</span>
+              <span class="fav-text">Still Gin x Hexclad by KODE MEDIA</span>
+            </a>
+            <div class="favourites-item">
+              <span class="fav-icon" aria-hidden="true">🎬</span>
+              <span class="label">Film:</span>
+              <span class="fav-text">Marty Supreme by A24</span>
+            </div>
+            <a href="https://www.venn.ca/" target="_blank" rel="noopener noreferrer" class="favourites-item">
+              <img src="https://www.google.com/s2/favicons?domain=venn.ca&sz=64" alt="" width="22" height="22" class="fav-favicon">
+              <span class="label">New startup:</span>
+              <span class="fav-text">Venn</span>
+            </a>
+            <a href="https://www.twitch.tv/atrioc" target="_blank" rel="noopener noreferrer" class="favourites-item">
+              <span class="fav-icon" aria-hidden="true">📺</span>
+              <span class="label">Creator:</span>
+              <span class="fav-text">Atrioc</span>
+            </a>
+          </div>
+        </div>
+        <div class="terminal-section">
+          <div class="terminal-section-title">contact me</div>
+          <p class="contact-text">You can reach me at <a href="mailto:me@lukefar.ag" class="contact-email">me@lukefar.ag</a></p>
+        </div>
+      </div>
+    </div>
+    <img src="assets/signature_logo.png" alt="" id="terminal-signature" class="terminal-signature" width="120" height="40">
+  </div>
+
+  <script>
+    (function () {
+      const canvas = document.getElementById('static-canvas');
+      const ctx = canvas.getContext('2d');
+
+      let width, height;
+      let imageData;
+      let buffer;
+
+      function resize() {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+        imageData = ctx.createImageData(width, height);
+        buffer = new Uint32Array(imageData.data.buffer);
+      }
+
+      function drawStatic() {
+        const len = buffer.length;
+        const rnd = Math.random;
+        const noiseDensity = 1 / 50;
+
+        for (let i = 0; i < len; i++) {
+          if (rnd() < noiseDensity) {
+            const g = Math.floor(20 + rnd() * 55);
+            buffer[i] = (255 << 24) | (g << 16) | (g << 8) | g;
+          } else {
+            buffer[i] = 0xff000000;
+          }
+        }
+
+        ctx.putImageData(imageData, 0, 0);
+      }
+
+      function loop() {
+        drawStatic();
+        requestAnimationFrame(loop);
+      }
+
+      window.addEventListener('resize', resize);
+      resize();
+      loop();
+    })();
+
+    (function () {
+      const el = document.getElementById('typed');
+      const messages = [
+        'under construction',
+        "can't come to the phone right now",
+        'just missed you',
+        'check back later',
+        'come again soon'
+      ];
+      const storageKey = 'static-page-visited';
+      const isFirstVisit = !localStorage.getItem(storageKey);
+      const message = isFirstVisit ? 'under construction' : messages[Math.floor(Math.random() * messages.length)];
+      if (isFirstVisit) {
+        localStorage.setItem(storageKey, 'true');
+      }
+      const baseSpeed = 30;
+      const minSpeed = 10;
+      const speedRamp = 0.5;
+
+      const subEl = document.getElementById('terminal-sub');
+      let i = 0;
+      function tick() {
+        if (i < message.length) {
+          el.textContent += message[i];
+          const delay = Math.max(minSpeed, baseSpeed - i * speedRamp);
+          i++;
+          setTimeout(tick, delay);
+        } else {
+          setTimeout(function () {
+            subEl.classList.add('visible');
+            setTimeout(function () {
+              document.getElementById('terminal-sections').classList.add('visible');
+              setTimeout(function () {
+                document.getElementById('terminal-signature').classList.add('visible');
+              }, 500);
+            }, 500);
+          }, 500);
+        }
+      }
+      tick();
+    })();
+  </script>
+</body>
+</html>
